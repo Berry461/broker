@@ -1,7 +1,17 @@
 "use client"
 import { useState, useEffect } from 'react';
-import Link  from 'next/link';
+import Link from 'next/link';
 import { useRouter } from 'next/router'
+import { createClient } from '@/utils/supabase/client';
+import { User } from '@supabase/supabase-js';
+
+type AppUser = User & {
+  user_metadata?: {
+    avatar_url?: string;
+  };
+}; // Adjust the import path as necessary
+const supabase = createClient();
+
 
 type NavItem = {
   id: number;
@@ -21,11 +31,14 @@ const MegaNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openSubMenuId, setOpenSubMenuId] = useState<number | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  //const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const navItems: NavItem[] = [
     {
       id: 1,
-      name: 'Products',
+      name: 'Buy',
       subItems: [
         {
           title: 'Software Solutions',
@@ -47,7 +60,7 @@ const MegaNavbar = () => {
     },
     {
       id: 2,
-      name: 'Solutions',
+      name: 'Rent',
       subItems: [
         {
           title: 'By Industry',
@@ -59,10 +72,39 @@ const MegaNavbar = () => {
         }
       ]
     },
-    { id: 3, name: 'Pricing', path: '/pricing' },
+    {
+      id: 3,
+      name: 'Sell',
+      subItems: [
+        {
+          title: 'By Industry',
+          items: [
+            { name: 'Healthcare', path: '/solutions/healthcare' },
+            { name: 'Finance', path: '/solutions/finance' },
+            { name: 'Education', path: '/solutions/education' },
+          ]
+        }
+      ]
+    },
     { id: 4, name: 'Resources', path: '/resources' },
     { id: 5, name: 'Company', path: '/about' },
   ];
+
+  // Add auth state listener
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Check current session on load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,7 +125,7 @@ const MegaNavbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="text-xl font-bold text-indigo-600">
-              YourLogo
+              Broker
             </Link>
           </div>
 
@@ -105,9 +147,8 @@ const MegaNavbar = () => {
                   >
                     {item.name}
                     <svg
-                      className={`ml-1 h-4 w-4 transition-transform ${
-                        openSubMenuId === item.id ? 'rotate-180' : ''
-                      }`}
+                      className={`ml-1 h-4 w-4 transition-transform ${openSubMenuId === item.id ? 'rotate-180' : ''
+                        }`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -153,17 +194,30 @@ const MegaNavbar = () => {
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Link
-              href="/login"
-              className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Sign In
-            </Link>
-            <Link
               href="/register"
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Post a Property
             </Link>
+
+            {loading ? (
+              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
+            ) : user ? (
+              <Link href="/account" className="flex items-center">
+                <img
+                  src={user.user_metadata?.avatar_url || '/default-avatar.png'}
+                  alt="User avatar"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -253,19 +307,35 @@ const MegaNavbar = () => {
           ))}
           <div className="pt-4 border-t border-gray-200">
             <Link
-              href="/login"
-              className="block w-full px-4 py-2 text-center rounded-md text-base font-medium text-indigo-600 hover:bg-indigo-50"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Sign In
-            </Link>
-            <Link
               href="/register"
               className="block w-full px-4 py-2 mt-2 text-center rounded-md text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Post a Property
             </Link>
+            {loading ? (
+              <div className="w-8 h-8 mx-auto rounded-full bg-gray-200 animate-pulse" />
+            ) : user ? (
+              <Link
+                href="/account"
+                className="flex justify-center"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <img
+                  src={user.user_metadata?.avatar_url || '/default-avatar.png'}
+                  alt="User avatar"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="block w-full px-4 py-2 text-center rounded-md text-base font-medium text-indigo-600 hover:bg-indigo-50"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </div>

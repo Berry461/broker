@@ -11,9 +11,9 @@ export default function MegaFooter() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10">
           {/* Company Info */}
           <div className="col-span-2 lg:col-span-1">
-            <h3 className="text-2xl font-bold mb-4">YourBrand</h3>
+            <h3 className="text-2xl font-bold mb-4">Broker</h3>
             <p className="text-gray-400 mb-6">
-              Transforming ideas into powerful digital experiences since 2015.
+              Transforming ideas into powerful digital experiences since 2025.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white">
@@ -94,7 +94,7 @@ export default function MegaFooter() {
             <Link href="/cookies" className="text-gray-400 hover:text-white text-sm">Cookie Policy</Link>
           </div>
           <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} YourBrand. All rights reserved.
+            &copy; {new Date().getFullYear()} Broker. All rights reserved.
           </p>
         </div>
       </div>

@@ -1,61 +1,46 @@
-'use client';
+'use client' // Must be a Client Component
 
-import { useState } from 'react';
-import { FiSearch } from 'react-icons/fi';
+import React from 'react';
+import GoogleAddressSearch from './GoogleAddressSearch';
+import { Button } from './ui/button';
+import { Search } from 'lucide-react'; // Importing the Search icon from lucide-react
 
-export default function HeroBanner() {
-  const [searchQuery, setSearchQuery] = useState('');
+function HeroBanner() {
+  const handleAddressSelect = (address: string | null) => {
+    console.log('Selected address:', address);
+    // You can add your address handling logic here
+  };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Searching for:', searchQuery);
-    // Add your search logic here
+  const handleCoordinates = (coords: { lat: number; lng: number }) => {
+    console.log('Coordinates:', coords);
+    // You can add your coordinates handling logic here
   };
 
   return (
-    <div className="relative w-full h-96">
-      {/* Background Image Only - no extra colored div */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')"
-        }}
-      ></div>
-      
-      {/* Semi-transparent overlay */}
-      <div className="absolute inset-0 bg-black/30"></div>
-      
-      {/* Content Container - left aligned */}
-      <div className="relative h-full flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="w-full md:w-1/2">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Find Your Dream Home
-          </h1>
-          <p className="text-xl text-white mb-6">
-            Search properties in your ideal location
-          </p>
-          
-          {/* Search Form */}
-          <form onSubmit={handleSearch} className="w-full max-w-lg">
-            <div className="relative flex items-center shadow-lg">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Enter an address, neighborhood, city or zip code"
-                className="w-full py-4 px-6 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg border-0"
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50">
+      <div className="w-full max-w-xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Find Your Dream Home
+        </h1>
+        <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <GoogleAddressSearch
+                selectedAddress={handleAddressSelect}
+                setCoordinates={handleCoordinates}
               />
-              <button
-                type="submit"
-                className="absolute right-2 bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors"
-                aria-label="Search properties"
-              >
-                <FiSearch className="h-6 w-6" />
-              </button>
             </div>
-          </form>
+            <Button
+              className="whitespace-nowrap h-[42px] px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
+            >
+              <Search className="h-4 w-4" />
+              Search
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+export default HeroBanner;
