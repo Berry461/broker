@@ -1,5 +1,5 @@
 "use client";
-
+import { SupabaseClient } from '@supabase/supabase-js';
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "../../src/utils/supabase/client";
@@ -39,7 +39,7 @@ export default function ProtectedRouteWithRole({
       }, 300);
     };
 
-    const validateRole = async (supabase: any) => {
+    const validateRole = async (supabase: SupabaseClient) => {
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData?.user?.id;
 

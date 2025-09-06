@@ -1,27 +1,13 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Listing from './Listing'
-import GoogleAddressSearch from './GoogleAddressSearch'
 import { Button } from './ui/button'
-import { Filter, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import FilterSection from './FilterSection'
 import dynamic from 'next/dynamic'
 
 const supabase = createClient()
-
-interface Listing {
-    id: string
-    title?: string
-    price?: number
-    address: string
-    bedroom?: number
-    bathroom?: number
-    area?: string
-    active: boolean
-    type: string
-    listingimages?: { url: string; listing_id: string }[]
-}
 
 interface ListingMapviewProps {
     type: string
@@ -67,7 +53,7 @@ function ListingMapview({ type }: ListingMapviewProps) {
         homeType: 'All'
     })
     const [mapCenter, setMapCenter] = useState({
-        lat: -3.745,  // Default coordinates
+        lat: -3.745,
         lng: -38.523
     });
 
@@ -78,7 +64,8 @@ function ListingMapview({ type }: ListingMapviewProps) {
         }))
     }
 
-    const fetchListings = async () => {
+    // Wrap fetchListings in useCallback with all dependencies
+    const fetchListings = useCallback(async () => {
         setLoading(true)
         try {
             let query = supabase
@@ -129,11 +116,11 @@ function ListingMapview({ type }: ListingMapviewProps) {
         } finally {
             setLoading(false)
         }
-    }
+    }, [filters.bedCount, filters.bathCount, filters.parkingCount, filters.homeType, searchQuery]) // All dependencies
 
     useEffect(() => {
         fetchListings()
-    }, [type])
+    }, [fetchListings, type]) // Now includes fetchListings
 
     const handleSearch = async () => {
         await fetchListings()
@@ -146,7 +133,7 @@ function ListingMapview({ type }: ListingMapviewProps) {
                     selectedAddress={(value: string | null) => setSearchQuery(value ?? '')}
                     setCoordinates={(coords) => {
                         console.log('New coordinates:', coords);
-                        setMapCenter(coords); // Update the map center state
+                        setMapCenter(coords);
                     }}
                 />
 
@@ -176,7 +163,6 @@ function ListingMapview({ type }: ListingMapviewProps) {
 
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Listings Column - Takes full width on mobile, 1/2 on lg screens, and 1/2 on xl */}
                     <div className="w-full lg:w-1/2 xl:w-1/2">
                         {loading ? (
                             <div className="flex justify-center items-center h-64">
@@ -187,7 +173,6 @@ function ListingMapview({ type }: ListingMapviewProps) {
                         )}
                     </div>
 
-                    {/* Map Column - Hidden on mobile, takes 1/2 width on lg and xl screens */}
                     <div className="hidden lg:block lg:w-1/2 xl:w-1/2">
                         <div className="sticky top-4 h-[calc(100vh-2rem)]">
                             <MapContainer center={mapCenter} />

@@ -25,7 +25,8 @@ export function createClient() {
   */
 
 
-import { createServerClient } from '@supabase/ssr';
+
+import { CookieOptions, createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export function createClient() {
@@ -36,11 +37,23 @@ export function createClient() {
       const cookieStore = await cookieStorePromise;
       return cookieStore.get(name)?.value;
     },
-    set() {
-      /* noop */
+    async set(name: string, value: string, options: CookieOptions) {
+      // Implementation for set if needed
+      const cookieStore = await cookieStorePromise;
+      try {
+        cookieStore.set({ name, value, ...options });
+      } catch {
+        // Silent fail for server components
+      }
     },
-    remove() {
-      /* noop */
+    async remove(name: string, options: CookieOptions) {
+      // Implementation for remove if needed
+      const cookieStore = await cookieStorePromise;
+      try {
+        cookieStore.set({ name, value: '', ...options });
+      } catch {
+        // Silent fail for server components
+      }
     },
   };
 
@@ -48,7 +61,7 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookies: adapter as any, // ✅ prevent TypeScript error here
+      cookies: adapter,
     }
   );
 }

@@ -17,7 +17,7 @@ export async function signInClient(email: string, password: string) {
   const user = data.user;
 
   // 2. Check if profile exists
-  let { data: profile, error: profileError } = await supabase
+  let { data: profile } = await supabase
     .from("user_profiles")
     .select("role")
     .eq("id", user.id)

@@ -55,7 +55,7 @@ interface Listing {
     id: string;
     title: string;
     description: string;
-    price: number;
+    price: string;
     image_url?: string;
     type: string;
     propertyType: string;
@@ -75,6 +75,19 @@ interface Listing {
     updated_at?: string;
     [key: string]: unknown; // Index signature for dynamic access
 
+}
+
+interface ListingFormValues extends Partial<Listing> {
+    type: string;
+    propertyType: string;
+    bedroom: string; // Form returns string
+    bathroom: string; // Form returns string
+    builtIn: string;
+    parking: string;
+    lotSize: string;
+    area: string;
+    hoa: string;
+    description: string;
 }
 
 
@@ -202,10 +215,18 @@ function EditListing({ params }: { params: Promise<{ id: string }> }) {
             if (dbError) throw dbError
 
             // Update local state
-            setListing((prev: any) => ({
+            /*setListing((prev: any) => ({
                 ...prev,
                 listingimages: prev.listingimages.filter((img: ListingImage) => img.path !== path)
-            }))
+            }))*/
+            setListing((prev: Listing | null) => {
+                if (!prev) return null;
+
+                return {
+                    ...prev,
+                    listingimages: (prev.listingimages || []).filter(img => img.path !== path)
+                };
+            });
         } catch (error) {
             console.error('Error deleting image:', error)
             throw error
@@ -213,7 +234,7 @@ function EditListing({ params }: { params: Promise<{ id: string }> }) {
     }
 
     // Form submission
-    const onSubmitHandler = async (formValue: any) => {
+    const onSubmitHandler = async (formValue: ListingFormValues) => {
         if (!isOwner) {
             toast.error('Unauthorized')
             return
@@ -252,9 +273,16 @@ function EditListing({ params }: { params: Promise<{ id: string }> }) {
             .eq('id', id)
             .select()
 
+        if (error) {
+            console.error('Error publishing listing:', error);
+            setLoading(false);
+            toast.error('Failed to publish listing');
+            return;
+        }
+
         if (data) {
-            setLoading(false)
-            toast.success('Listing published successfully!')
+            setLoading(false);
+            toast.success('Listing published successfully!');
         }
 
     }

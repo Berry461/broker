@@ -1,15 +1,17 @@
 "use client"
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router'
+//import { useRouter } from 'next/router'
 import { createClient } from '@/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
+import Image from 'next/image';
 
-type AppUser = User & {
+/*type AppUser = User & {
   user_metadata?: {
     avatar_url?: string;
   };
 }; // Adjust the import path as necessary
+*/
 const supabase = createClient();
 
 
@@ -204,10 +206,12 @@ const MegaNavbar = () => {
               <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
             ) : user ? (
               <Link href="/account" className="flex items-center">
-                <img
+                <Image
                   src={user.user_metadata?.avatar_url || '/default-avatar.png'}
                   alt="User avatar"
                   className="w-8 h-8 rounded-full object-cover"
+                  width={40}
+                  height={40}
                 />
               </Link>
             ) : (
@@ -321,10 +325,12 @@ const MegaNavbar = () => {
                 className="flex justify-center"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <img
+                <Image
                   src={user.user_metadata?.avatar_url || '/default-avatar.png'}
                   alt="User avatar"
                   className="w-8 h-8 rounded-full object-cover"
+                  width={40}
+                  height={40}
                 />
               </Link>
             ) : (

@@ -1,59 +1,3 @@
-/*"use client"
-import React from 'react'
-import { MapPin } from 'lucide-react'
-import GooglePlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
-
-interface Coordinates {
-    lat: number;
-    lng: number;
-}
-
-interface GoogleAddressSearchProps {
-    selectedAddress: (value: string | null) => void;
-    setCoordinates: (value: Coordinates) => void;
-}
-
-const GoogleAddressSearch = ({ selectedAddress, setCoordinates }: GoogleAddressSearchProps) => {
-    const handlePlaceSelect = async (place: any) => {
-        try {
-            if (!place) {
-                selectedAddress(null);
-                setCoordinates({ lat: 0, lng: 0 });
-                return;
-            }
-
-            selectedAddress(place.label);
-
-            if (place.value?.place_id) {
-                const results = await geocodeByAddress(place.label);
-                const { lat, lng } = await getLatLng(results[0]);
-                setCoordinates({ lat, lng });
-            }
-        } catch (error) {
-            console.error('Error geocoding address:', error);
-            selectedAddress(null);
-            setCoordinates({ lat: 0, lng: 0 });
-        }
-    };
-
-    return (
-        <div className="flex items-center w-full">
-            <MapPin className='h-10 w-10 p-2 rounded-l-lg text-indigo-600 bg-purple-200' />
-            <GooglePlacesAutocomplete
-                apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACE_API_KEY}
-                selectProps={{
-                    placeholder: 'Enter Property Address',
-                    isClearable: true,
-                    className: 'w-full',
-                    onChange: handlePlaceSelect,
-                }}
-            />
-        </div>
-    );
-};
-
-export default GoogleAddressSearch;*/
-
 "use client"
 import React from 'react'
 import { MapPin } from 'lucide-react'
@@ -69,8 +13,16 @@ interface GoogleAddressSearchProps {
     setCoordinates: (value: Coordinates) => void;
 }
 
+interface PlaceResult {
+    label: string;
+    value: {
+        place_id: string;
+        // Add other properties you expect from the place object
+    };
+}
+
 const GoogleAddressSearch = ({ selectedAddress, setCoordinates }: GoogleAddressSearchProps) => {
-    const handlePlaceSelect = async (place: any) => {
+    const handlePlaceSelect = async (place: PlaceResult | null) => {
         try {
             if (!place) {
                 selectedAddress(null);
@@ -120,6 +72,7 @@ const GoogleAddressSearch = ({ selectedAddress, setCoordinates }: GoogleAddressS
                     isClearable: true,
                     className: 'w-full',
                     onChange: handlePlaceSelect,
+                    instanceId: "google-address-search",
                     styles: {
                         control: (provided) => ({
                             ...provided,

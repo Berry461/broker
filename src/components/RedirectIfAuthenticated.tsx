@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "../../src/utils/supabase/client";
+import { SupabaseClient } from '@supabase/supabase-js';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export default function RedirectIfAuthenticated({
   children,
@@ -35,7 +37,7 @@ export default function RedirectIfAuthenticated({
       }, 300); // 300ms delay
     };
 
-    const redirectByRole = async (supabase: any, router: any) => {
+    const redirectByRole = async (supabase: SupabaseClient, router: AppRouterInstance) => {
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData?.user?.id;
 
