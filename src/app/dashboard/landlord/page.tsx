@@ -25,8 +25,7 @@ interface Address {
 }
 
 const LandlordDashboard = () => {
-  //const [selectedAddress, setSelectedAddress] = React.useState<any>(null);
-  const [selectedAddress, setSelectedAddress] = React.useState<Address | null>(null);
+  const [selectedAddress, setSelectedAddress] = React.useState<string | null>(null);
   const [coordinates, setCoordinates] = React.useState({ lat: 0, lng: 0 });
   const [loader, setLoader] = React.useState(false);
   const router = useRouter();
@@ -67,23 +66,15 @@ const LandlordDashboard = () => {
           <h2 className="text-2xl font-bold">Add New Listing</h2>
           <div className='p-10 rounded-lg border w-full shadow-md flex flex-col gap-5'>
             <h2 className='text-gray-500'>Enter Address which you want to list</h2>
+
             <GoogleAddressSearch
-              selectedAddress={(value: string | null) => {
-                // Convert the string to your Address object
-                if (value === null) {
-                  setSelectedAddress(null);
-                } else {
-                  // You might need to parse JSON or create an Address object
-                  const address: Address = {
-                    place_id: value, // or extract from string
-                    display_name: value, // or get from elsewhere
-                    lat: 0, // You'll need to get these from coordinates
-                    lon: 0,
-                  };
-                  setSelectedAddress(address);
-                }
+              selectedAddress={(addressString: string | null) => {
+                // Just store the address string directly
+                setSelectedAddress(addressString);
               }}
-              setCoordinates={(value: { lat: number; lng: number }) => setCoordinates(value)}
+              setCoordinates={(coords: { lat: number; lng: number }) => {
+                setCoordinates(coords);
+              }}
             />
             <Button
               disabled={!selectedAddress || !coordinates.lat || !coordinates.lng || loader}
