@@ -1,59 +1,73 @@
 'use client'
-import { GoogleMap, Marker } from '@react-google-maps/api'
+import { GoogleMap } from '@react-google-maps/api'
 import { useEffect, useState } from 'react'
+import MarkerItem  from './MarkerItem'
 
-
-interface MapContainerProps {
-    center: {
-        lat: number;
-        lng: number;
-    };
+// 👇 1. UPDATE THE INTERFACE to match your JSON column
+interface ListingLocation {
+  id: string;
+  coordinates?: {    // Note: checking if it matches your DB column name "cordinates"
+    lat: number;
+    lng: number;
+  }; 
 }
 
-const MapContainer = ({ center }: MapContainerProps) => {
-    //const center = { lat: -3.745, lng: -38.523 }
-    const [apiReady, setApiReady] = useState(false)
+interface MapContainerProps {
+  center: {
+    lat: number;
+    lng: number;
+  };
+  listings: ListingLocation[]; 
+}
 
-    useEffect(() => {
-        // Check if Google Maps API is already loaded by GoogleAddressSearch
+const MapContainer = ({ center, listings }: MapContainerProps) => {
+  const [apiReady, setApiReady] = useState(false)
+
+  useEffect(() => {
+    if (window.google && window.google.maps) {
+      setApiReady(true)
+    } else {
+      const timer = setInterval(() => {
         if (window.google && window.google.maps) {
-            setApiReady(true)
-        } else {
-            // Fallback check in case loading is slightly delayed
-            const timer = setInterval(() => {
-                if (window.google && window.google.maps) {
-                    setApiReady(true)
-                    clearInterval(timer)
-                }
-            }, 100)
-
-            return () => clearInterval(timer)
+          setApiReady(true)
+          clearInterval(timer)
         }
-    }, [])
-
-    if (!apiReady) {
-        return (
-            <div className="h-[400px] w-full flex items-center justify-center bg-gray-100">
-                Loading map...
-            </div>
-        )
+      }, 100)
+      return () => clearInterval(timer)
     }
+  }, [])
 
-    return (
-        <div className="w-full h-[500px]">
-            <GoogleMap
-                mapContainerClassName="w-full h-full"
-                center={center}
-                zoom={12}
-            >
-                <Marker position={center} />
-                {/* Optional: Show coordinates text */}
-                <div className="absolute bottom-4 left-4 bg-white p-2 rounded shadow">
-                    Lat: {center.lat.toFixed(4)}, Lng: {center.lng.toFixed(4)}
-                </div>
-            </GoogleMap>
-        </div>
-    )
+  if (!apiReady) return <div className="h-full w-full bg-gray-100 flex items-center justify-center">Loading Map...</div>
+
+  return (
+    <div className="w-full h-full">
+      <GoogleMap
+        mapContainerClassName="w-full h-full rounded-xl overflow-hidden"
+        center={center}
+        zoom={12}
+        options={{ disableDefaultUI: false, zoomControl: true }}
+      >
+        {listings.map((listing) => {
+          // 👇 2. UPDATE THE CHECK
+          // We check if the 'cordinates' object exists inside the listing
+          if (listing.coordinates && listing.coordinates.lat && listing.coordinates.lng) {
+            return (
+              <MarkerItem 
+                key={listing.id}
+                listing={listing}
+                // 👇 3. UPDATE THE ACCESS PATH
+                position={{ 
+                  lat: listing.coordinates.lat, 
+                  lng: listing.coordinates.lng 
+                }} 
+              />
+            )
+          }
+          return null
+        })}
+      </GoogleMap>
+    </div>
+  )
 }
 
 export default MapContainer
